@@ -14,7 +14,7 @@ import {
 
 import AddRecordModal from "../feature/amount_calculator/components/AddRecordModal";
 import AmountHistoryTable from "../feature/amount_calculator/components/AmountHistoryTable";
-import AmountSummary from "../feature/amount_calculator/components/amountSummary";
+import AmountSummary from "../feature/amount_calculator/components/AmountSummary";
 import useAmountCalculator from "../feature/amount_calculator/hooks/useAmountCalculator";
 
 export default function Index() {

@@ -1,4 +1,6 @@
+import { useEffect, useRef, useState } from "react";
 import {
+    Keyboard,
     KeyboardAvoidingView,
     Modal,
     Platform,
@@ -10,6 +12,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import type { ScrollViewInstance } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import type { AmountFormValues } from "../types";
@@ -53,6 +56,46 @@ export default function AddRecordModal({
   const insets = useSafeAreaInsets();
   const preview = calculatePreview(form);
 
+  const scrollRef = useRef<ScrollViewInstance>(null);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  // Android edge-to-edge modals are not resized for the keyboard,
+  // so reserve space under the content to let it scroll above the keyboard.
+  useEffect(() => {
+    if (Platform.OS !== "android") return;
+
+    const showSub = Keyboard.addListener("keyboardDidShow", (e) =>
+      setKeyboardHeight(e.endCoordinates.height),
+    );
+    const hideSub = Keyboard.addListener("keyboardDidHide", () =>
+      setKeyboardHeight(0),
+    );
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
+  const packsFocused = useRef(false);
+
+  const scrollToBottom = () => {
+    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
+  };
+
+  // Scroll once the keyboard space has been added, if the packs input is focused.
+  useEffect(() => {
+    if (keyboardHeight > 0 && packsFocused.current) {
+      scrollToBottom();
+    }
+  }, [keyboardHeight]);
+
+  const handlePacksFocus = () => {
+    packsFocused.current = true;
+    // Keyboard may already be open (moving from another input).
+    if (keyboardHeight > 0) scrollToBottom();
+  };
+
   return (
     <Modal
       visible={visible}
@@ -66,12 +109,16 @@ export default function AddRecordModal({
         <Pressable style={styles.modalBackdrop} onPress={onClose} />
 
         <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
           style={styles.modalKeyboard}
         >
           <ScrollView
+            ref={scrollRef}
             style={styles.modalScroll}
-            contentContainerStyle={styles.modalScrollContent}
+            contentContainerStyle={[
+              styles.modalScrollContent,
+              { paddingBottom: keyboardHeight },
+            ]}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
             nestedScrollEnabled
@@ -182,6 +229,10 @@ export default function AddRecordModal({
                   keyboardType="number-pad"
                   value={packs}
                   onChangeText={onChangePacks}
+                  onFocus={handlePacksFocus}
+                  onBlur={() => {
+                    packsFocused.current = false;
+                  }}
                 />
 
                 {preview !== null && (

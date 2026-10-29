@@ -16,7 +16,7 @@ export default function AmountSummary({ records, isSmallScreen }: Props) {
       style={[styles.summaryCard, isSmallScreen && styles.summaryCardSmall]}
     >
       <View style={styles.summaryItem}>
-        <Text style={styles.summaryLabel}>Total Records</Text>
+        <Text style={styles.summaryLabel}>Total Record</Text>
         <Text style={styles.summaryCount}>{records.length}</Text>
       </View>
 

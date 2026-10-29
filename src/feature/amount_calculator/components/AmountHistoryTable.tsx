@@ -1,4 +1,11 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { router } from "expo-router";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 import type { AmountRecord } from "../types";
 import { formatAmount } from "../utils";
@@ -8,6 +15,13 @@ type Props = {
 };
 
 export default function AmountHistoryTable({ records }: Props) {
+  const openBill = (record: AmountRecord) => {
+    router.push({
+      pathname: "/bill",
+      params: { record: JSON.stringify(record) },
+    });
+  };
+
   return (
     <>
       <View style={styles.tableTitleRow}>
@@ -45,6 +59,8 @@ export default function AmountHistoryTable({ records }: Props) {
               <Text style={[styles.headerCell, styles.finalColumn]}>
                 Final Value (₹)
               </Text>
+
+              <Text style={[styles.headerCell, styles.billColumn]}>Bill</Text>
             </View>
 
             {records.length === 0 ? (
@@ -98,6 +114,18 @@ export default function AmountHistoryTable({ records }: Props) {
                     <Text style={styles.finalValueText}>
                       {formatAmount(item.finalValue)}
                     </Text>
+                  </View>
+
+                  <View style={styles.billColumn}>
+                    <TouchableOpacity
+                      style={styles.billButton}
+                      onPress={() => openBill(item)}
+                      activeOpacity={0.8}
+                      accessibilityRole="button"
+                      accessibilityLabel={`View bill for record ${index + 1}`}
+                    >
+                      <Text style={styles.billButtonText}>Bill</Text>
+                    </TouchableOpacity>
                   </View>
                 </View>
               ))
@@ -213,6 +241,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
+  billColumn: {
+    width: 100,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  billButton: {
+    paddingHorizontal: 18,
+    paddingVertical: 9,
+    borderRadius: 8,
+    backgroundColor: "#173A70",
+  },
+
+  billButtonText: {
+    color: "#FFFFFF",
+    fontSize: 13,
+    fontWeight: "800",
+  },
+
   percentCell: {
     alignItems: "center",
     justifyContent: "center",
@@ -234,7 +281,7 @@ const styles = StyleSheet.create({
   },
 
   emptyContainer: {
-    width: 790,
+    width: 890,
     paddingVertical: 45,
     paddingHorizontal: 24,
     alignItems: "center",
