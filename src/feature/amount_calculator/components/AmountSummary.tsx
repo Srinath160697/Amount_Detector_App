@@ -23,7 +23,7 @@ export default function AmountSummary({ records, isSmallScreen }: Props) {
       <View style={styles.summaryDivider} />
 
       <View style={styles.summaryRight}>
-        <Text style={styles.summaryLabel}>Latest Final Value</Text>
+        <Text style={styles.summaryLabel}>Latests Final Value</Text>
 
         <Text
           style={[
